@@ -129,6 +129,23 @@ const API_VIDEO = {
     },
     afterHandle: AHS.J_D,
   },
+  /** High-quality playurl for download (DASH). Do not reuse getVideoPreview. */
+  getPlayUrl: {
+    url: 'https://api.bilibili.com/x/player/wbi/playurl',
+    _fetch: {
+      method: 'get',
+    },
+    params: {
+      qn: 80,
+      fnver: 0,
+      fnval: 4048,
+      fourk: 1,
+      aid: '',
+      bvid: '',
+      cid: 0,
+    },
+    afterHandle: AHS.J_D,
+  },
 } satisfies APIMAP
 
 export default API_VIDEO

@@ -18,6 +18,9 @@ common:
   please_log_in_first: 请先登录
   login: 登录
   save_to_watch_later: 稍后再看
+  merge_download: 合并下载
+  merge_download_failed: 下载失败
+  merge_download_done: 下载完成
   added: 已添加
   performance_impact_warn: 这个功能可能会影响性能！
   no_more_content: 没有更多内容了

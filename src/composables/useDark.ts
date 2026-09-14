@@ -165,8 +165,8 @@ export function useDark() {
           },
         )
         animation.addEventListener('finish', () => {
-          document.head.removeChild(style!)
-          bewlyWrapper.removeChild(shadowDomStyle!)
+          style?.remove()
+          shadowDomStyle?.remove()
         }, { once: true })
       })
     }

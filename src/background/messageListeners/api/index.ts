@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill'
 import { apiListenerFactory } from '../../utils'
 import API_ANIME from './anime'
 import API_AUTH from './auth'
+import API_DOWNLOAD from './download'
 import API_FAVORITE from './favorite'
 import API_HISTORY from './history'
 import API_LIVE from './live'
@@ -27,6 +28,7 @@ export const API_COLLECTION = {
   VIDEO: API_VIDEO,
   WATCHLATER: API_WATCHLATER,
   LIVE: API_LIVE,
+  DOWNLOAD: API_DOWNLOAD,
 
   [Symbol.iterator]() {
     return Object.values(this).values()
@@ -39,11 +41,7 @@ const FullAPI = Object.assign({}, ...API_COLLECTION)
 const handleMessage = apiListenerFactory(FullAPI)
 
 export function setupApiMsgLstnrs() {
-  browser.runtime.onConnect.removeListener(handleConnect)
-  browser.runtime.onConnect.addListener(handleConnect)
-}
-
-function handleConnect() {
+  // Register immediately — do not wait for onConnect (otherwise APIs return undefined).
   browser.runtime.onMessage.removeListener(handleMessage)
   browser.runtime.onMessage.addListener(handleMessage)
 }

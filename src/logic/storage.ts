@@ -135,9 +135,9 @@ export const originalSettings: Settings = {
   blockAds: false,
   blockTopSearchPageAds: false,
 
-  enableVideoPreview: true,
+  enableVideoPreview: false,
   enableVideoCtrlBarOnVideoCard: false,
-  hoverVideoCardDelayed: false,
+  hoverVideoCardDelayed: true,
 
   // Desktop & Dock
   useOldTopBar: false,

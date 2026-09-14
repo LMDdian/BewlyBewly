@@ -6,6 +6,7 @@ import type { BewlyAppProvider } from '~/composables/useAppProvider'
 import { useDark } from '~/composables/useDark'
 import { BEWLY_MOUNTED, DRAWER_VIDEO_ENTER_PAGE_FULL, DRAWER_VIDEO_EXIT_PAGE_FULL, IFRAME_PAGE_SWITCH_BEWLY, IFRAME_PAGE_SWITCH_BILI, OVERLAY_SCROLL_BAR_SCROLL } from '~/constants/globalEvents'
 import { AppPage } from '~/enums/appEnums'
+import { setupVideoPageDownloadButton } from '~/features/videoDownload/mountToolbarButton'
 import { settings } from '~/logic'
 import { type DockItem, useMainStore } from '~/stores/mainStore'
 import { useSettingsStore } from '~/stores/settingsStore'
@@ -162,6 +163,9 @@ onMounted(() => {
     document.body.style.setProperty('background-color', 'unset', 'important')
   }
   // document.documentElement.style.setProperty('font-size', '14px')
+
+  if (isVideoOrBangumiPage() && !isInIframe())
+    setupVideoPageDownloadButton()
 
   document.addEventListener('scroll', () => {
     if (window.scrollY > 0)

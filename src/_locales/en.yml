@@ -18,6 +18,9 @@ common:
   please_log_in_first: Please log in first
   login: Login
   save_to_watch_later: Save to Watch later
+  merge_download: Merge download
+  merge_download_failed: Download failed
+  merge_download_done: Download complete
   added: Added
   performance_impact_warn: This feature may cause performance *DECREASE*!
   no_more_content: No more content now, owari da

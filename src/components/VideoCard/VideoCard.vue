@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Icon } from '@iconify/vue'
 import type { CSSProperties } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 
 import Button from '~/components/Button.vue'
@@ -40,6 +41,7 @@ interface Props {
 }
 
 const toast = useToast()
+const { t } = useI18n()
 const { mainAppRef, openIframeDrawer } = useBewlyApp()
 const { setActivatedCover } = useMainStore()
 
@@ -73,6 +75,7 @@ const videoUrl = computed(() => {
 
 const isInWatchLater = ref<boolean>(false)
 const isHover = ref<boolean>(false)
+const isMergingDownload = ref(false)
 const mouseEnterTimeOut = ref()
 const mouseLeaveTimeOut = ref()
 const previewVideoUrl = ref<string>('')
@@ -101,10 +104,10 @@ watch(() => isHover.value, async (newValue) => {
     api.video.getVideoPreview({
       bvid: props.video.bvid,
       cid,
-    }).then((res: VideoPreviewResult) => {
-      if (res.code === 0)
+    }).then((res: VideoPreviewResult | undefined) => {
+      if (res?.code === 0 && res.data?.durl?.[0]?.url)
         previewVideoUrl.value = res.data.durl[0].url
-    })
+    }).catch(() => {})
   }
 })
 
@@ -118,11 +121,12 @@ function toggleWatchLater() {
       csrf: getCSRF(),
     })
       .then((res) => {
-        if (res.code === 0)
+        if (res?.code === 0)
           isInWatchLater.value = true
-        else
+        else if (res?.message)
           toast.error(res.message)
       })
+      .catch(() => {})
   }
   else {
     api.watchlater.removeFromWatchLater({
@@ -130,16 +134,50 @@ function toggleWatchLater() {
       csrf: getCSRF(),
     })
       .then((res) => {
-        if (res.code === 0)
+        if (res?.code === 0)
           isInWatchLater.value = false
-        else
+        else if (res?.message)
           toast.error(res.message)
       })
+      .catch(() => {})
+  }
+}
+
+async function handleMergeDownload() {
+  if (!props.video || isMergingDownload.value)
+    return
+
+  // Live / unsupported cards
+  if (props.video.roomid && !props.video.bvid && !props.video.aid && !props.video.id)
+    return
+
+  isMergingDownload.value = true
+  toast.info(t('common.merge_download'))
+
+  try {
+    // Lazy-load standalone download chunk (keeps ffmpeg out of main IIFE).
+    const { mergeDownloadLazy } = await import('~/features/videoDownload/loadMergeDownload')
+    await mergeDownloadLazy({
+      aid: props.video.aid || props.video.id,
+      bvid: props.video.bvid,
+      cid: props.video.cid,
+      title: props.video.title,
+    })
+    toast.success(t('common.merge_download_done'))
+  }
+  catch (error: any) {
+    toast.error(error?.message || t('common.merge_download_failed'))
+  }
+  finally {
+    isMergingDownload.value = false
   }
 }
 
 function handleMouseEnter() {
-  props.video && setActivatedCover(`${removeHttpFromUrl(props.video.cover)}@672w_378h_1c_!web-home-common-cover`)
+  // Blurred cover background is only used when frosted glass is on and no wallpaper.
+  if (!settings.value.disableFrostedGlass && !settings.value.wallpaper && props.video) {
+    setActivatedCover(`${removeHttpFromUrl(props.video.cover)}@336w_189h_1c_!web-home-common-cover`)
+  }
 
   // fix #789
   contentVisibility.value = 'visible'
@@ -274,7 +312,7 @@ provide('getVideoType', () => props.type!)
             <!-- Video cover -->
             <Picture
               :src="`${removeHttpFromUrl(video.cover)}@672w_378h_1c_!web-home-common-cover`"
-              loading="eager"
+              loading="lazy"
               w="full" max-w-full align-middle aspect-video object-cover
               rounded="$bew-radius"
             />
@@ -390,26 +428,43 @@ provide('getVideoType', () => props.type!)
                 {{ video.badge.text }}
               </div>
 
-              <!-- Watcher later button -->
-              <button
+              <!-- Cover action buttons -->
+              <div
                 v-if="showWatcherLater"
                 pos="absolute top-0 right-0" z="2"
-                p="x-2 y-1" m="1"
-                rounded="$bew-radius"
-                text="!white xl"
-                bg="black opacity-60"
+                m="1"
+                flex="~ gap-1"
                 class="opacity-0 group-hover/cover:opacity-100"
                 transform="scale-70 group-hover/cover:scale-100"
                 duration-300
-                @click.prevent.stop="toggleWatchLater"
               >
-                <Tooltip v-if="!isInWatchLater" :content="$t('common.save_to_watch_later')" placement="bottom-right" type="dark">
-                  <div i-mingcute:carplay-line />
-                </Tooltip>
-                <Tooltip v-else :content="$t('common.added')" placement="bottom-right" type="dark">
-                  <Icon icon="line-md:confirm" />
-                </Tooltip>
-              </button>
+                <button
+                  p="x-2 y-1"
+                  rounded="$bew-radius"
+                  text="!white xl"
+                  bg="black opacity-60"
+                  :disabled="isMergingDownload"
+                  @click.prevent.stop="handleMergeDownload"
+                >
+                  <Tooltip :content="$t('common.merge_download')" placement="bottom-right" type="dark">
+                    <div i-mingcute:download-2-line />
+                  </Tooltip>
+                </button>
+                <button
+                  p="x-2 y-1"
+                  rounded="$bew-radius"
+                  text="!white xl"
+                  bg="black opacity-60"
+                  @click.prevent.stop="toggleWatchLater"
+                >
+                  <Tooltip v-if="!isInWatchLater" :content="$t('common.save_to_watch_later')" placement="bottom-right" type="dark">
+                    <div i-mingcute:carplay-line />
+                  </Tooltip>
+                  <Tooltip v-else :content="$t('common.added')" placement="bottom-right" type="dark">
+                    <Icon icon="line-md:confirm" />
+                  </Tooltip>
+                </button>
+              </div>
             </template>
           </div>
 

@@ -137,11 +137,11 @@ function setAppWallpaperMaskingOpacity() {
             <img
               :key="currentActivatedCover"
               :src="currentActivatedCover"
-              loading="eager"
+              loading="lazy"
+              decoding="async"
               style="
                 mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, transparent);
-                filter: blur(20px) opacity(0.15);
-                will-change: transform, opacity;
+                filter: blur(12px) opacity(0.14);
               "
               pointer-events-none
               pos="absolute top--40px left-0" w="100%" h="50%" of-hidden

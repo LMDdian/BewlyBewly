@@ -106,7 +106,9 @@
     "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "src/**/*.{js,ts,vue}": "eslint --fix",
+    "scripts/**/*.{js,ts}": "eslint --fix",
+    "eslint.config.mjs": "eslint --fix"
   },
   "webExt": {
     "run": {

@@ -9,7 +9,7 @@ import { settings } from '~/logic'
 import { setupApp } from '~/logic/common-setup'
 import RESET_BEWLY_CSS from '~/styles/reset.css?raw'
 import { runWhenIdle } from '~/utils/lazyLoad'
-import { compareVersions, injectCSS, isHomePage, isInIframe, isNotificationPage, isVideoOrBangumiPage } from '~/utils/main'
+import { compareVersions, injectCSS, isHomePage, isInIframe, isNotificationPage, isVideoOrBangumiPage, safeRemoveNode } from '~/utils/main'
 import { SVG_ICONS } from '~/utils/svgIcons'
 
 import { version } from '../../package.json'
@@ -158,8 +158,8 @@ if (settings.value.adaptToOtherPageStyles && isHomePage()) {
 }
 
 window.addEventListener(BEWLY_MOUNTED, () => {
-  if (beforeLoadedStyleEl)
-    document.documentElement.removeChild(beforeLoadedStyleEl)
+  safeRemoveNode(beforeLoadedStyleEl)
+  beforeLoadedStyleEl = undefined
 })
 
 // Set the original Bilibili top bar to `display: none` to prevent it from showing before the load
@@ -208,8 +208,7 @@ async function onDOMLoaded() {
   }
 
   // Reset the original Bilibili top bar display style
-  if (removeOriginalTopBar)
-    document.documentElement.removeChild(removeOriginalTopBar)
+  safeRemoveNode(removeOriginalTopBar)
 }
 
 if (document.readyState !== 'loading')

@@ -134,6 +134,22 @@ export function injectCSS(css: string, element: HTMLElement | ShadowRoot = docum
   return el
 }
 
+/** Safely detach a node that may already have been moved/removed. */
+export function safeRemoveNode(node: Node | null | undefined) {
+  if (!node)
+    return
+  try {
+    if (typeof (node as ChildNode).remove === 'function') {
+      ;(node as ChildNode).remove()
+      return
+    }
+    node.parentNode?.removeChild(node)
+  }
+  catch {
+    // ignore NotFoundError when node is no longer a child
+  }
+}
+
 /**
  * delay
  * @param ms milliseconds delay time

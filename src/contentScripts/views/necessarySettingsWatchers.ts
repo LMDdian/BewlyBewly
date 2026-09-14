@@ -2,7 +2,7 @@ import { useI18n } from 'vue-i18n'
 
 import { LanguageType } from '~/enums/appEnums'
 import { accessKey, settings } from '~/logic'
-import { getUserID, injectCSS } from '~/utils/main'
+import { getUserID, injectCSS, safeRemoveNode } from '~/utils/main'
 
 export function setupNecessarySettingsWatchers() {
   const { locale } = useI18n()
@@ -113,7 +113,7 @@ export function setupNecessarySettingsWatchers() {
         document.documentElement.appendChild(removeTheIndentFromChinesePunctuationStyleEl)
       }
       else {
-        document.documentElement.removeChild(removeTheIndentFromChinesePunctuationStyleEl)
+        safeRemoveNode(removeTheIndentFromChinesePunctuationStyleEl)
       }
     },
     { immediate: true },
@@ -198,7 +198,7 @@ export function setupNecessarySettingsWatchers() {
     if (settings.value.blockTopSearchPageAds)
       document.documentElement.appendChild(blockTopSearchPageAdsStyleEl)
     else
-      document.documentElement.removeChild(blockTopSearchPageAdsStyleEl)
+      safeRemoveNode(blockTopSearchPageAdsStyleEl)
   }, { immediate: true })
 
   watch(

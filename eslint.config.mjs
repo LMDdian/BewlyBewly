@@ -3,6 +3,12 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort'
 
 export default antfu(
   {
+    ignores: [
+      'assets/ffmpeg/**',
+      'extension/**',
+      'extension-firefox/**',
+      'extension-safari/**',
+    ],
     formatters: {
       css: 'prettier',
       prettierOptions: {
@@ -32,6 +38,7 @@ export default antfu(
         'public',
         'extension',
         'extension-firefox',
+        'assets/ffmpeg',
       ],
     },
   },

@@ -62,8 +62,10 @@ function apiListenerFactory(API_MAP: APIMAP) {
   return async (message: Message, sender?: Browser.Runtime.MessageSender, sendResponse?: Function) => {
     const contentScriptQuery = message.contentScriptQuery
     // 检测是否有contentScriptQuery
-    if (!contentScriptQuery || !API_MAP[contentScriptQuery])
-      return console.error(`Cannot find this contentScriptQuery: ${contentScriptQuery}`)
+    if (!contentScriptQuery || !API_MAP[contentScriptQuery]) {
+      console.error(`Cannot find this contentScriptQuery: ${contentScriptQuery}`)
+      return { code: -1, message: `Unknown API: ${contentScriptQuery || '(empty)'}` }
+    }
     if (API_MAP[contentScriptQuery] instanceof Function)
       return (API_MAP[contentScriptQuery] as APIFunction)(message, sender, sendResponse)
 
